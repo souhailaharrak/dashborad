@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>yyep</title>
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.production.min.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="text/babel" src="Tache.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script type="text/babel">
+      class App extends React.Component {
+        state = {
+          name: "",
+          tache: [],
+        };
+        componentDidMount() {
+          axios.get("http://127.0.0.1:8000/api/tache").then((res) => {
+            this.setState({
+              tache: res.data,
+            });
+          });
+        }
+        handleClick = async (e) => {
+          e.preventDefault();
+
+          await axios
+            .post("http://127.0.0.1:8000/api/tache/store", this.state)
+            .then((res) => {
+              window.location.reload(false);
+            });
+        };
+
+        handleChange = (e) => {
+          this.setState({
+            name: e.target.value,
+          });
+        };
+
+        //FunctionDelete
+        handleDelete = (id) => {
+       
+          axios.delete("http://127.0.0.1:8000/api/tache/delete/" + id).then((res) => {
+          
+            window.location.reload(false);
+          });
+        };
+
+        render() {
+          return (
+            <div>
+              <form>
+                <input
+                  onChange={this.handleChange}
+                  placeholder="Enter nom de tache"
+                ></input>
+                <button onClick={this.handleClick} id="btn">
+                  POST
+                </button>
+              </form>
+
+              <div>
+                <table className="styled-table">
+                  <thead>
+                    <tr>
+                      <th>Id</th>
+                      <th>Tache</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {this.state.tache.map((tache) => (
+                      <tr>
+                        <td>{tache.id}</td>
+                        <td>{tache.name}</td>
+                        <td>
+                          <button 
+                           id="delete"  onClick={() => this.handleDelete(tache.id)}> Delete </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.render(<App />, document.getElementById("app"));
+    </script>
+  </body>
+</html>
